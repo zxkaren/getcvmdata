@@ -9,16 +9,15 @@ from typing import Any
 
 import requests
 from dateutil.relativedelta import relativedelta
-from decouple import AutoConfig
+from decouple import config
 
 
-config = AutoConfig(search_path=str(Path(__file__).resolve().parent.parent))
+API_URL = config("API_URL", default="")
+REQUEST_TIMEOUT = config("REQUEST_TIMEOUT", default=30, cast=int)
+PAGE_SIZE = config("PAGE_SIZE", default=100, cast=int)
+TARGET_DIRECTORY_NAME = config("TARGET_DIRECTORY_NAME", default="")
+LOOKBACK_MONTHS = config("LOOKBACK_MONTHS", default=3, cast=int)
 
-API_URL = config("API_URL", "")
-REQUEST_TIMEOUT = config("REQUEST_TIMEOUT", 30, cast=int)
-PAGE_SIZE = config("PAGE_SIZE", 100, cast=int)
-TARGET_DIRECTORY_NAME = config("TARGET_DIRECTORY_NAME", "")
-LOOKBACK_MONTHS = config("LOOKBACK_MONTHS", 3, cast=int)
 
 logger = logging.getLogger(__name__)
 
