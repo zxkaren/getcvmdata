@@ -1,6 +1,6 @@
 ## CVM SRE Data Pipeline
 
-Pipeline em Python para coleta automatizada de dados públicos da CVM, com processamento e geração de arquivos prontos para análise em ferramentas de BI.
+Pipeline em Python para coleta automatizada de dados públicos da CVM, com processamento e geração de arquivos prontos para análise em ferramentas de BI. Útil para advogados e contadores na prospecção de clientes.
 
 ---
 
