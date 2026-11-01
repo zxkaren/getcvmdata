@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "financial-data"
+version = "0.1.0"
+description = "Pipelines de coleta e análise de dados financeiros."
+dependencies = [
+    "APScheduler",
+    "python-dateutil",
+    "python-decouple",
+    "requests",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["financial_data*"]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8,<9",
+]

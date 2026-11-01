@@ -1,4 +1,23 @@
+# Variáveis de ambiente e configurações locais
 .env
-venv
-.venv
-__pycache__
+
+# Ambientes virtuais Python
+venv/
+.venv/
+
+# Cache e arquivos compilados do Python
+__pycache__/
+*.py[cod]
+
+# Cache dos testes automatizados
+.pytest_cache/
+
+# Metadados de instalação do pacote Python
+*.egg-info/
+
+# Arquivos gerados pelos pipelines
+/data/**/*
+
+# Preserva a estrutura dos diretórios de dados
+!/data/**/
+!/data/**/.gitkeep
