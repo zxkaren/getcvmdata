@@ -1,11 +1,5 @@
 APScheduler
-certifi
-charset-normalizer
-idna
 python-dateutil
 python-decouple
 requests
-six
 tzdata
-tzlocal
-urllib3
