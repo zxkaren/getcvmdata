@@ -15,6 +15,12 @@ __pycache__/
 # Metadados de instalação do pacote Python
 *.egg-info/
 
+# Dependências e arquivos gerados pelo frontend
+/dashboard/node_modules/
+/dashboard/dist/
+/dashboard/.vite/
+*.tsbuildinfo
+
 # Arquivos gerados pelos pipelines
 /data/**/*
 
