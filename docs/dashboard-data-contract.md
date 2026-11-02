@@ -137,3 +137,67 @@ válidos e correspondência comprovada.
 
 Campos adicionais deverão preservar a compatibilidade
 com as versões anteriores do contrato.
+
+
+## 9. Publicação do panorama executivo
+
+O publicador gera três arquivos:
+
+- `offers.json`: registros individuais consolidados.
+- `overview.json`: indicadores e agrupamentos executivos.
+- `manifest.json`: identificação da geração e dos conjuntos publicados.
+
+### Estrutura do overview.json
+
+O arquivo possui duas propriedades principais:
+
+- `metadata`: fonte, versão do contrato, total de ofertas,
+  data da última coleta e identificador da geração.
+- `overview`: indicadores calculados em Python.
+
+O objeto `overview` contém:
+
+- `total_offers`
+- `total_amount_brl`
+- `distinct_issuers`
+- `distinct_lead_coordinators`
+- `offers_without_issuer_cnpj`
+- `offers_without_coordinator_cnpj`
+- `reference_date_range`
+- `offers_by_security_type`
+- `offers_by_status`
+- `offers_by_date`
+- `largest_offers`
+
+Todos os valores monetários são strings decimais.
+
+O intervalo de datas representa as datas extremas encontradas
+nos registros, não uma garantia de cobertura integral do mercado.
+
+### Identificação da geração
+
+O campo `generation_id` identifica os conjuntos produzidos
+pela mesma execução do publicador.
+
+Ele está presente no manifesto e nos metadados dos dois datasets.
+
+O frontend deverá verificar a correspondência desses identificadores
+antes de utilizar os dados.
+
+O manifesto é gravado por último, após a gravação dos datasets.
+
+As gravações individuais são atômicas, mas a publicação dos três
+arquivos não constitui uma transação atômica conjunta.
+
+O campo `generated_at` representa o horário de publicação.
+O campo `last_source_execution_at` representa a última coleta.
+
+### Compatibilidade
+
+O contrato permanece na versão 1.
+
+O arquivo `offers.json` preserva sua estrutura existente.
+Os novos campos são adicionais.
+
+O arquivo `participants.json` continua previsto para uma
+etapa futura e ainda não é publicado.

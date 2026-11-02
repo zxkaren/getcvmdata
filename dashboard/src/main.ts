@@ -1,6 +1,12 @@
 import './style.css';
+import './styles/overview.css';
 
+import { renderAppShell } from './app/appShell';
+import { initializeOverviewCharts } from './pages/overview/overviewCharts';
+import { renderOverviewPage } from './pages/overview/overviewPage';
 import { loadDashboardData } from './services/dashboardDataService';
+import { formatBrlAmount } from './utils/formatCurrency';
+import { renderLargestOffersTable } from './pages/overview/overviewRanking';
 
 const appElement = document.querySelector<HTMLDivElement>('#app');
 
@@ -8,73 +14,114 @@ if (!appElement) {
   throw new Error('Elemento principal da aplicação não encontrado.');
 }
 
-appElement.innerHTML = `
-  <main class="dashboard-container">
-    <header class="dashboard-header">
-      <span class="eyebrow">GetCVMData</span>
-      <h1>Inteligência de Mercado</h1>
-      <p>Fundação do dashboard — CVM SRE</p>
-    </header>
+appElement.innerHTML = renderAppShell(renderOverviewPage());
 
-    <section class="data-panel" aria-label="Dados da coleta">
-      <p id="load-status" role="status">Carregando dados processados...</p>
+function getRequiredElement<T extends HTMLElement>(
+  selector: string,
+): T {
+  const element = document.querySelector<T>(selector);
 
-      <div class="metric">
-        <span>Ofertas consolidadas</span>
-        <strong id="total-offers">—</strong>
-      </div>
+  if (!element) {
+    throw new Error(`Elemento não encontrado: ${selector}`);
+  }
 
-      <p id="last-collection"></p>
+  return element;
+}
 
-      <a
-        id="sample-offer-link"
-        target="_blank"
-        rel="noopener noreferrer"
-        hidden
-      ></a>
-    </section>
-  </main>
-`;
+function formatIsoDate(value: string): string {
+  const [year, month, day] = value.split('-');
+
+  return `${day}/${month}/${year}`;
+}
 
 async function initializeDashboard(): Promise<void> {
-  const statusElement = document.querySelector<HTMLElement>('#load-status');
-  const totalElement = document.querySelector<HTMLElement>('#total-offers');
-  const dateElement = document.querySelector<HTMLElement>('#last-collection');
-  const offerLink = document.querySelector<HTMLAnchorElement>(
-    '#sample-offer-link'
+  const statusElement = getRequiredElement<HTMLElement>(
+    '#load-status'
   );
 
-  if (!statusElement || !totalElement || !dateElement || !offerLink) {
-    throw new Error('Elementos do dashboard não encontrados.');
-  }
+  const totalOffersElement = getRequiredElement<HTMLElement>(
+    '#total-offers'
+  );
+
+  const totalVolumeElement = getRequiredElement<HTMLElement>(
+    '#total-volume'
+  );
+
+  const exactVolumeElement = getRequiredElement<HTMLElement>(
+    '#total-volume-exact'
+  );
+
+  const issuersElement = getRequiredElement<HTMLElement>(
+    '#distinct-issuers'
+  );
+
+  const coordinatorsElement = getRequiredElement<HTMLElement>(
+    '#distinct-coordinators'
+  );
+
+  const referencePeriodElement = getRequiredElement<HTMLElement>(
+    '#reference-period'
+  );
+
+  const collectionDateElement = getRequiredElement<HTMLElement>(
+    '#last-collection'
+  );
 
   try {
     const dashboardData = await loadDashboardData();
+    const overview = dashboardData.overview;
 
-    totalElement.textContent = dashboardData.totalOffers.toLocaleString(
-      'pt-BR'
+    totalOffersElement.textContent =
+      overview.total_offers.toLocaleString('pt-BR');
+
+    const formattedAmount = formatBrlAmount(
+      overview.total_amount_brl
     );
 
-    dateElement.textContent =
+    totalVolumeElement.textContent = formattedAmount.abbreviated;
+
+    exactVolumeElement.textContent =
+      `Total: ${formattedAmount.exact}`;
+
+    issuersElement.textContent =
+      overview.distinct_issuers.toLocaleString('pt-BR');
+
+    coordinatorsElement.textContent =
+      overview.distinct_lead_coordinators.toLocaleString('pt-BR');
+
+    const { start, end } = overview.reference_date_range;
+
+    referencePeriodElement.textContent =
+      start && end
+        ? `Datas de referência dos registros: ${formatIsoDate(start)} a ${formatIsoDate(end)}.`
+        : 'Período de referência não disponível.';
+
+    collectionDateElement.textContent =
       `Última coleta: ${dashboardData.lastSourceExecutionAt.replace('T', ' ')}` +
       ' (fuso não informado)';
 
-    const sampleOffer = dashboardData.offers[0];
+    initializeOverviewCharts(overview);
 
-    if (sampleOffer) {
-      offerLink.href = sampleOffer.cvm_url;
-      offerLink.textContent =
-        `Consultar oferta ${sampleOffer.request_id} na CVM`;
-      offerLink.hidden = false;
+    const rankingContainer = getRequiredElement<HTMLElement>(
+  '#largest-offers-table'
+);
+
+rankingContainer.replaceChildren(
+  renderLargestOffersTable(overview.largest_offers)
+);
+
+    if (overview.total_offers === 0) {
+      statusElement.textContent =
+        'Nenhuma oferta disponível neste conjunto de dados.';
+    } else {
+      statusElement.textContent = 'Dados carregados com sucesso.';
+      statusElement.classList.add('success');
     }
-
-    statusElement.textContent = 'Dados carregados com sucesso.';
-    statusElement.classList.add('success');
   } catch (error) {
     statusElement.textContent =
       error instanceof Error
         ? error.message
-        : 'Não foi possível carregar os dados.';
+        : 'Não foi possível carregar os indicadores.';
 
     statusElement.classList.add('error');
   }
